@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logging Microservice</title>
+    <style>
+        :root {
+            --primary-color: #777;
+            --text-color: #333;
+            --subtext-color: #777;
+            --bg-color: #f9fafb;
+            --card-bg: #ffffff;
+            --border-radius: 16px;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 20px;
+        }
+
+        .logo img {
+            width: 120px;
+            height: auto;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-4px);
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        p {
+            font-size: 1rem;
+            color: var(--subtext-color);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="logo">
+        <img src="/static/logo.jpeg" alt="Logging Microservice Logo">
+    </div>
+
+    <div class="container">
+        <h1>Welcome to the Logging Microservice</h1>
+        <p>A lightweight and scalable service for centralized log management.</p>
+        <p>Explore our API documentation to integrate logging into your system.</p>
+    </div>
+
+</body>
+
+</html>

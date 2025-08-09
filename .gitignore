@@ -1,0 +1,7 @@
+__pycache__
+.pytest_cache
+*/__pycache__
+*/*/__pycache__
+env
+mongo_data
+.env

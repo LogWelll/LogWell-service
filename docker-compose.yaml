@@ -1,0 +1,59 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: fastapi-app
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app # development only
+    depends_on:
+      - mongo
+      - rabbitmq
+    restart: on-failure
+
+  mongo:
+    image: mongo:8.0
+    container_name: mongo_opensource_log
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo_data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin # use stronger ceredentials on production
+      RABBITMQ_DEFAULT_PASS: admin123 # use stronger ceredentials on production
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: celery-worker
+    command: celery -A queues.celery_worker.celery_app worker --loglevel=info
+    depends_on:
+      - rabbitmq
+      - mongo
+    environment:
+      - C_FORCE_ROOT=true
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    volumes:
+      - ./app:/app # development only
+    working_dir: /app
+    env_file:
+      - .env
+
+volumes:
+  mongo_data:
+  rabbitmq_data:

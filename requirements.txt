@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+beanie
+aio-pika
+celery
+pydantic
+pydantic-settings 
+rich
+pytest
+mongomock_motor
+pytest_asyncio
+pytest_mock
+httpx
