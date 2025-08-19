@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, BackgroundTasks
 from queues.celery_worker import celery_app
 from logs.schemas import LogCreateSchema, LogRetrieveSchema
 from logs.models import Level
@@ -18,7 +18,7 @@ from logs.services import (
 
 from base_error import NotFoundError
 from logs.errors import ServiceUnavailableError
-
+from tasks import _save_log
 from logs.responses import (
     create_log_response,
     read_log_response,
@@ -187,3 +187,24 @@ async def post_log_non_blocking(
     log = await create_log_non_blocking(record.model_dump(), celery_app)
 
     return non_blocking_create_log_response(log)
+
+
+@logging_router.post(
+    "/non-blocking/builtin/",
+    response_model=BaseResponse[dict],
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def post_log_non_blocking_builtin(
+    record: LogCreateSchema,
+    background_tasks: BackgroundTasks,
+    repo: AbstractLogRepository = Depends(get_repository),
+):
+    """
+    For the cases of high-throughput log creation and to avoid blocking the main thread,
+    use this endpoint to create a new log without blocking the main thread. Keep in mind that for this endpoint to be available,
+    the message queue must be active.
+    """
+
+    background_tasks.add_task(_save_log, record.model_dump())
+
+    return non_blocking_create_log_response(record.model_dump())
