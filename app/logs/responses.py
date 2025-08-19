@@ -2,28 +2,41 @@ from base_response import BaseResponse
 from logs.schemas import LogRetrieveSchema
 
 
-def create_log_response(record: LogRetrieveSchema):
-    return BaseResponse[LogRetrieveSchema](
-        message="Log added successfully",
-        data=record,
-    )
+class LogCreateResponse(BaseResponse):
+    def __init__(
+        self,
+        data: LogRetrieveSchema,
+        message: str = "Log added successfully",
+    ):
+        super().__init__(message=message, data=data)
 
 
-def read_log_response(record: LogRetrieveSchema):
-    return BaseResponse[LogRetrieveSchema](
-        message="Log retrieved successfully",
-        data=record,
-    )
+class LogReadResponse(BaseResponse):
+    def __init__(
+        self,
+        data: LogRetrieveSchema,
+        message: str = "Log retrieved successfully",
+    ):
+        super().__init__(message=message, data=data)
 
 
-def read_logs_response(records: list[LogRetrieveSchema]):
-    return BaseResponse[list[LogRetrieveSchema]](
-        message="Logs retrieved successfully",
-        data=records,
-    )
+class LogReadListResponse(BaseResponse):
+    total: int
 
-def non_blocking_create_log_response(record: dict):
-    return BaseResponse[dict](
-        message="Log creation queued successfully",
-        data=record,
-    )
+    def __init__(
+        self,
+        data: list[LogRetrieveSchema],
+        message: str = "Logs retrieved successfully",
+        total: int = 0,
+    ):
+        super().__init__(message=message, data=data, total=total)
+        self.total = total
+
+
+class NonBlockingLogCreateResponse(BaseResponse):
+    def __init__(
+        self,
+        data: dict,
+        message: str = "Log creation queued successfully",
+    ):
+        super().__init__(message=message, data=data)

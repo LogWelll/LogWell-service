@@ -4,7 +4,6 @@ from logs.schemas import LogCreateSchema, LogRetrieveSchema
 from logs.models import Level
 from interfaces.log_repository import AbstractLogRepository
 from celery import Celery
-from base_response import BaseResponse
 from logs.services import (
     create_log,
     read_log,
@@ -20,10 +19,10 @@ from base_error import NotFoundError
 from logs.errors import ServiceUnavailableError
 from tasks import _save_log
 from logs.responses import (
-    create_log_response,
-    read_log_response,
-    read_logs_response,
-    non_blocking_create_log_response,
+    LogCreateResponse,
+    LogReadResponse,
+    LogReadListResponse,
+    NonBlockingLogCreateResponse,
 )
 
 logging_router = APIRouter()
@@ -45,7 +44,7 @@ def get_celery_app():
 
 @logging_router.post(
     "/",
-    response_model=BaseResponse[LogRetrieveSchema],
+    response_model=LogCreateResponse[LogRetrieveSchema],
     status_code=status.HTTP_201_CREATED,
 )
 async def post_log(
@@ -56,12 +55,13 @@ async def post_log(
     """
     log = await create_log(record.model_dump(), repo)
 
-    return create_log_response(LogRetrieveSchema(**log.model_dump()))
+    # return create_log_response(LogRetrieveSchema(**log.model_dump()))
+    return LogCreateResponse(data=LogRetrieveSchema(**log.model_dump()))
 
 
 @logging_router.get(
     "/{uid}",
-    response_model=BaseResponse[LogRetrieveSchema],
+    response_model=LogReadResponse[LogRetrieveSchema],
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_404_NOT_FOUND: {
@@ -78,26 +78,30 @@ async def get_log_by_id(
     """
     log = await read_log(uid, repo)
 
-    return read_log_response(LogRetrieveSchema(**log.model_dump()))
+    # return read_log_response(LogRetrieveSchema(**log.model_dump()))
+    return LogReadResponse(data=LogRetrieveSchema(**log.model_dump()))
 
 
 @logging_router.get(
     "/",
-    response_model=BaseResponse[list[LogRetrieveSchema]],
+    response_model=LogReadListResponse[list[LogRetrieveSchema]],
     status_code=status.HTTP_200_OK,
 )
 async def get_logs_list(repo: AbstractLogRepository = Depends(get_repository)):
     """
     Use this endpoint to retrieve all logs within the database.
     """
-    logs = await read_logs_list(repo)
+    logs, total = await read_logs_list(repo)
 
-    return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
+    # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
+    return LogReadListResponse(
+        data=[LogRetrieveSchema(**log.model_dump()) for log in logs], total=total
+    )
 
 
 @logging_router.get(
     "/tag/{tag}",
-    response_model=BaseResponse[list[LogRetrieveSchema]],
+    response_model=LogReadListResponse[list[LogRetrieveSchema]],
     status_code=status.HTTP_200_OK,
 )
 async def get_logs_by_tag(
@@ -106,14 +110,17 @@ async def get_logs_by_tag(
     """
     Given a tag, retrieve all logs with that tag using this endpoint.
     """
-    logs = await read_logs_by_tag(tag, repo)
+    total, logs = await read_logs_by_tag(tag, repo)
 
-    return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
+    # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
+    return LogReadListResponse(
+        data=[LogRetrieveSchema(**log.model_dump()) for log in logs], total=total
+    )
 
 
 @logging_router.get(
     "/level/{level}",
-    response_model=BaseResponse[list[LogRetrieveSchema]],
+    response_model=LogReadListResponse[list[LogRetrieveSchema]],
     status_code=status.HTTP_200_OK,
 )
 async def get_logs_by_level(
@@ -122,14 +129,17 @@ async def get_logs_by_level(
     """
     Use this endpoint to retrieve all logs with a specific level.
     """
-    logs = await read_logs_by_level(level, repo)
+    logs, total = await read_logs_by_level(level, repo)
 
-    return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
+    # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
+    return LogReadListResponse(
+        data=[LogRetrieveSchema(**log.model_dump()) for log in logs], total=total
+    )
 
 
 @logging_router.get(
     "/group/{group_path}/",
-    response_model=BaseResponse[list[LogRetrieveSchema]],
+    response_model=LogReadListResponse[list[LogRetrieveSchema]],
     status_code=status.HTTP_200_OK,
 )
 async def get_logs_by_group_path(
@@ -139,14 +149,17 @@ async def get_logs_by_group_path(
     Use this endpoint to retrieve all logs with a specific group path.
     The group path is a string of the form "root-node1-node2" and this endpoint will retrieve all logs with this exact group path.
     """
-    logs = await read_logs_by_group_path(group_path, repo)
+    logs, total = await read_logs_by_group_path(group_path, repo)
 
-    return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
+    # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
+    return LogReadListResponse(
+        data=[LogRetrieveSchema(**log.model_dump()) for log in logs], total=total
+    )
 
 
 @logging_router.get(
     "/group/{group_path}/children/",
-    response_model=BaseResponse[list[LogRetrieveSchema]],
+    response_model=LogReadListResponse[list[LogRetrieveSchema]],
     status_code=status.HTTP_200_OK,
 )
 async def get_logs_by_group_path_children(
@@ -157,14 +170,17 @@ async def get_logs_by_group_path_children(
     Unlike the /logs/group/{group_path} endpoint that returns only the logs with the specific group path,
     this endpoint will retrieve all logs that are defined under the group path.
     """
-    logs = await read_logs_by_group_path_children(group_path, repo)
+    logs, total = await read_logs_by_group_path_children(group_path, repo)
 
-    return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
+    # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
+    return LogReadListResponse(
+        data=[LogRetrieveSchema(**log.model_dump()) for log in logs], total=total
+    )
 
 
 @logging_router.post(
     "/non-blocking/",
-    response_model=BaseResponse[dict],
+    response_model=LogCreateResponse[dict],
     status_code=status.HTTP_202_ACCEPTED,
     responses={
         status.HTTP_503_SERVICE_UNAVAILABLE: {
@@ -181,17 +197,18 @@ async def post_log_non_blocking(
     """
     For the cases of high-throughput log creation and to avoid blocking the main thread,
     use this endpoint to create a new log without blocking the main thread. Keep in mind that for this endpoint to be available,
-    the message queue must be active.
+    the message queue and celery worker must be active.
     """
 
     log = await create_log_non_blocking(record.model_dump(), celery_app)
 
-    return non_blocking_create_log_response(log)
+    # return non_blocking_create_log_response(log)
+    return NonBlockingLogCreateResponse(data=log)
 
 
 @logging_router.post(
     "/non-blocking/builtin/",
-    response_model=BaseResponse[dict],
+    response_model=LogCreateResponse[dict],
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def post_log_non_blocking_builtin(
@@ -201,10 +218,11 @@ async def post_log_non_blocking_builtin(
 ):
     """
     For the cases of high-throughput log creation and to avoid blocking the main thread,
-    use this endpoint to create a new log without blocking the main thread. Keep in mind that for this endpoint to be available,
-    the message queue must be active.
+    use this endpoint to create a new log without blocking the main thread. This endpoint uses Background tasks
+    from FastAPI, therefore this requires no external services (e.g. celery worker and message queue), unlike the non-blocking endpoint.
     """
 
     background_tasks.add_task(_save_log, record.model_dump())
 
-    return non_blocking_create_log_response(record.model_dump())
+    # return non_blocking_create_log_response(record.model_dump())
+    return NonBlockingLogCreateResponse(data=record.model_dump())
