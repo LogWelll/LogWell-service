@@ -1,3 +1,11 @@
+import os
+from typing import Literal
+
+os.environ["DB_ADDRESS"] = "mongodb://localhost:27017"
+os.environ["DB_NAME"] = "test_db"
+os.environ["allowed_keys"] = '["key1"]'
+
+
 from beanie import init_beanie
 from repositories.mongo_repository import MongoLogDocument, MongoLogRepository
 import pytest_asyncio
@@ -6,6 +14,19 @@ from logs.schemas import LogCreateSchema
 from logs.models import Log, Level
 from httpx import ASGITransport, AsyncClient
 from main import app
+
+
+@pytest.fixture
+def header():
+    def _make_header(flag: Literal["valid", "invalid"]):
+        if flag == "valid":
+            return {"x-api-key": "key1"}
+        elif flag == "invalid":
+            return {"x-api-key": "invalid_key"}
+        else:
+            raise ValueError(f"Invalid flag: {flag}")
+
+    return _make_header
 
 
 @pytest_asyncio.fixture(scope="function", autouse=True)

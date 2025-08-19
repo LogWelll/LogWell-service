@@ -54,57 +54,65 @@ async def test_read_logs_list(
     test_create_log_list: list[Log], repo: MongoLogRepository
 ):
     test_logs: list[Log] = test_create_log_list
-    queried_logs = await read_logs_list(repo)
+    queried_logs, total = await read_logs_list(repo)
     assert len(test_logs) == len(queried_logs)
+    assert len(test_logs) == total
 
 
 @pytest.mark.asyncio
 async def test_read_logs_by_level(test_log: Log, repo: MongoLogRepository):
     log = test_log
-    queried_by_tag_logs = await read_logs_by_level("INFO", repo)
+    queried_by_tag_logs, total = await read_logs_by_level("INFO", repo)
     assert len(queried_by_tag_logs) == 1
     assert log.tag == queried_by_tag_logs[0].tag
+    assert total == 1
 
 
 @pytest.mark.asyncio
 async def test_read_logs_by_empty_level(repo: MongoLogRepository):
-    queried_by_tag_logs = await read_logs_by_level(Level.CRITICAL, repo)
+    queried_by_tag_logs, total = await read_logs_by_level(Level.CRITICAL, repo)
     assert len(queried_by_tag_logs) == 0
+    assert total == 0
 
 
 @pytest.mark.asyncio
 async def test_read_logs_by_tag(test_log: Log, repo: MongoLogRepository):
     log = test_log
-    queried_by_tag_logs = await read_logs_by_tag(log.tag, repo)
+    queried_by_tag_logs, total = await read_logs_by_tag(log.tag, repo)
+    assert total == 1
     assert len(queried_by_tag_logs) == 1
     assert log.tag == queried_by_tag_logs[0].tag
 
 
 @pytest.mark.asyncio
 async def test_read_logs_by_empty_tag(repo: MongoLogRepository):
-    queried_by_tag_logs = await read_logs_by_tag("non_existing_tag", repo)
+    queried_by_tag_logs, total = await read_logs_by_tag("non_existing_tag", repo)
     assert len(queried_by_tag_logs) == 0
+    assert total == 0
 
 
 @pytest.mark.asyncio
 async def test_read_logs_by_group_path(grouped_logs, repo: MongoLogRepository):
-    logs = await read_logs_by_group_path("root-section", repo)
+    logs, total = await read_logs_by_group_path("root-section", repo)
+    assert total == 1
     assert len(logs) == 1  # Only the exact match
     assert logs[0].group_path == ["root", "section"]
 
 
 @pytest.mark.asyncio
 async def test_read_logs_by_empty_group_path(repo: MongoLogRepository):
-    logs = await read_logs_by_group_path("non-existing-group-path", repo)
+    logs, total = await read_logs_by_group_path("non-existing-group-path", repo)
+    assert total == 0
     assert len(logs) == 0
 
 
 @pytest.mark.asyncio
 async def test_read_logs_by_group_path_children(grouped_logs, repo: MongoLogRepository):
-    logs = await read_logs_by_group_path_children("root-section", repo)
+    logs, total = await read_logs_by_group_path_children("root-section", repo)
     paths = [log.group_path for log in logs]
     assert any(["child" in path for path in paths])
     assert len(logs) >= 2
+    assert total
 
 
 # The following test is not working because mongomock does not support such complex queries.

@@ -2,7 +2,6 @@ from interfaces.log_repository import AbstractLogRepository
 from logs.models import Log, Level
 from typing import List, Optional
 from beanie import Document
-from beanie.operators import Expr
 
 
 class MongoLogDocument(Document, Log):
@@ -90,14 +89,26 @@ class MongoLogRepository(AbstractLogRepository):
     ) -> List[Log]:
         # Match all logs whose group_path starts with the given path
         total = await MongoLogDocument.find(
-            {"$eq": [{"$slice": ["$group_path", len(group_path)]}, group_path]}
+            {
+                "$expr": {
+                    "$eq": [
+                        {"$slice": ["$group_path", len(group_path)]},
+                        group_path,
+                    ]
+                }
+            }
         ).count()
 
         docs = (
             await MongoLogDocument.find(
-                Expr(
-                    {"$eq": [{"$slice": ["$group_path", len(group_path)]}, group_path]}
-                )
+                {
+                    "$expr": {
+                        "$eq": [
+                            {"$slice": ["$group_path", len(group_path)]},
+                            group_path,
+                        ]
+                    }
+                },
             )
             .skip(offset)
             .limit(limit)

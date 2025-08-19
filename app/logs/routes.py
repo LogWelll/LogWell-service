@@ -110,7 +110,7 @@ async def get_logs_by_tag(
     """
     Given a tag, retrieve all logs with that tag using this endpoint.
     """
-    total, logs = await read_logs_by_tag(tag, repo)
+    logs, total = await read_logs_by_tag(tag, repo)
 
     # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
     return LogReadListResponse(
