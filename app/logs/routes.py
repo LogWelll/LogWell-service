@@ -180,7 +180,7 @@ async def get_logs_by_group_path_children(
 
 @logging_router.post(
     "/non-blocking/",
-    response_model=LogCreateResponse[dict],
+    response_model=NonBlockingLogCreateResponse[dict],
     status_code=status.HTTP_202_ACCEPTED,
     responses={
         status.HTTP_503_SERVICE_UNAVAILABLE: {
@@ -208,7 +208,7 @@ async def post_log_non_blocking(
 
 @logging_router.post(
     "/non-blocking/builtin/",
-    response_model=LogCreateResponse[dict],
+    response_model=NonBlockingLogCreateResponse[dict],
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def post_log_non_blocking_builtin(
