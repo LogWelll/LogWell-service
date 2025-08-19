@@ -19,6 +19,7 @@ class Level(StrEnum):
 class BaseLog(BaseModel):
     tenant: str | None = None
     log: dict | str = Field(default_factory=dict)
+    execution_path: dict | None = None
     metadata: dict = Field(default_factory=dict)
     tag: str | None = None
     level: Level = Level.NOTSET

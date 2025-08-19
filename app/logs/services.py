@@ -25,30 +25,36 @@ async def read_log(uid: str, repo: AbstractLogRepository) -> Log:
     return log
 
 
-async def read_logs_list(repo: AbstractLogRepository) -> list[Log]:
-    return await repo.all()
+async def read_logs_list(
+    repo: AbstractLogRepository, offset: int = 0, limit: int = 10
+) -> list[Log]:
+    return await repo.all(offset, limit)
 
 
-async def read_logs_by_tag(tag: str, repo: AbstractLogRepository) -> list[Log]:
-    return await repo.find_by_tag(tag)
+async def read_logs_by_tag(
+    tag: str, repo: AbstractLogRepository, offset: int = 0, limit: int = 10
+) -> list[Log]:
+    return await repo.find_by_tag(tag, offset, limit)
 
 
-async def read_logs_by_level(level: str, repo: AbstractLogRepository) -> list[Log]:
-    return await repo.find_by_level(level)
+async def read_logs_by_level(
+    level: str, repo: AbstractLogRepository, offset: int = 0, limit: int = 10
+) -> list[Log]:
+    return await repo.find_by_level(level, offset, limit)
 
 
 async def read_logs_by_group_path(
-    group_path: str, repo: AbstractLogRepository
+    group_path: str, repo: AbstractLogRepository, offset: int = 0, limit: int = 10
 ) -> list[Log]:
     group_path_list = group_path.split("-")
-    return await repo.find_by_group_path(group_path_list)
+    return await repo.find_by_group_path(group_path_list, offset, limit)
 
 
 async def read_logs_by_group_path_children(
-    group_path: str, repo: AbstractLogRepository
+    group_path: str, repo: AbstractLogRepository, offset: int = 0, limit: int = 10
 ) -> list[Log]:
     group_path_list = group_path.split("-")
-    return await repo.find_children_by_group_path(group_path_list)
+    return await repo.find_children_by_group_path(group_path_list, offset, limit)
 
 
 async def create_log_non_blocking(record: dict, celery_app: Celery):

@@ -71,7 +71,8 @@ async def post_log(
     },
 )
 async def get_log_by_id(
-    uid: str, repo: AbstractLogRepository = Depends(get_repository)
+    uid: str,
+    repo: AbstractLogRepository = Depends(get_repository),
 ):
     """
     Use this endpoint to retrieve a log by its uid.
@@ -87,11 +88,15 @@ async def get_log_by_id(
     response_model=LogReadListResponse[list[LogRetrieveSchema]],
     status_code=status.HTTP_200_OK,
 )
-async def get_logs_list(repo: AbstractLogRepository = Depends(get_repository)):
+async def get_logs_list(
+    repo: AbstractLogRepository = Depends(get_repository),
+    offset: int = 0,
+    limit: int = 10,
+):
     """
     Use this endpoint to retrieve all logs within the database.
     """
-    logs, total = await read_logs_list(repo)
+    logs, total = await read_logs_list(repo, offset, limit)
 
     # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
     return LogReadListResponse(
@@ -105,12 +110,15 @@ async def get_logs_list(repo: AbstractLogRepository = Depends(get_repository)):
     status_code=status.HTTP_200_OK,
 )
 async def get_logs_by_tag(
-    tag: str, repo: AbstractLogRepository = Depends(get_repository)
+    tag: str,
+    repo: AbstractLogRepository = Depends(get_repository),
+    offset: int = 0,
+    limit: int = 10,
 ):
     """
     Given a tag, retrieve all logs with that tag using this endpoint.
     """
-    logs, total = await read_logs_by_tag(tag, repo)
+    logs, total = await read_logs_by_tag(tag, repo, offset, limit)
 
     # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
     return LogReadListResponse(
@@ -124,12 +132,15 @@ async def get_logs_by_tag(
     status_code=status.HTTP_200_OK,
 )
 async def get_logs_by_level(
-    level: Level, repo: AbstractLogRepository = Depends(get_repository)
+    level: Level,
+    repo: AbstractLogRepository = Depends(get_repository),
+    offset: int = 0,
+    limit: int = 10,
 ):
     """
     Use this endpoint to retrieve all logs with a specific level.
     """
-    logs, total = await read_logs_by_level(level, repo)
+    logs, total = await read_logs_by_level(level, repo, offset, limit)
 
     # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
     return LogReadListResponse(
@@ -143,13 +154,16 @@ async def get_logs_by_level(
     status_code=status.HTTP_200_OK,
 )
 async def get_logs_by_group_path(
-    group_path: str, repo: AbstractLogRepository = Depends(get_repository)
+    group_path: str,
+    repo: AbstractLogRepository = Depends(get_repository),
+    offset: int = 0,
+    limit: int = 10,
 ):
     """
     Use this endpoint to retrieve all logs with a specific group path.
     The group path is a string of the form "root-node1-node2" and this endpoint will retrieve all logs with this exact group path.
     """
-    logs, total = await read_logs_by_group_path(group_path, repo)
+    logs, total = await read_logs_by_group_path(group_path, repo, offset, limit)
 
     # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
     return LogReadListResponse(
@@ -163,14 +177,19 @@ async def get_logs_by_group_path(
     status_code=status.HTTP_200_OK,
 )
 async def get_logs_by_group_path_children(
-    group_path: str, repo: AbstractLogRepository = Depends(get_repository)
+    group_path: str,
+    repo: AbstractLogRepository = Depends(get_repository),
+    offset: int = 0,
+    limit: int = 10,
 ):
     """
     Use this endpoint to retrieve all logs that are defined under a specific group path.
     Unlike the /logs/group/{group_path} endpoint that returns only the logs with the specific group path,
     this endpoint will retrieve all logs that are defined under the group path.
     """
-    logs, total = await read_logs_by_group_path_children(group_path, repo)
+    logs, total = await read_logs_by_group_path_children(
+        group_path, repo, offset, limit
+    )
 
     # return read_logs_response([LogRetrieveSchema(**log.model_dump()) for log in logs])
     return LogReadListResponse(
