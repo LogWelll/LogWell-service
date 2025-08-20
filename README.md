@@ -101,8 +101,8 @@ If you prefer using a custom client, instead of plain HTTP calls every now and t
 
 ```python
 
-from logwell_client.src.client import SyncLogClient
-from logwell_client.src.schema import LogCreateSchema
+from logwell_client.client import SyncLogClient
+from logwell_client.schema import LogCreateSchema
 
 client = SyncLogClient(
     base_url="http://localhost:8000/", api_key="key1", tenant="tenant1"
@@ -139,7 +139,7 @@ LogWell-client also offers logging compatible handler to facilitate the logging 
 
 ```python
 import logging
-from logwell_client.src.handler import LogServiceHandler
+from logwell_client.handler import LogServiceHandler
 
 logger = logging.getLogger("my-app")
 logger.setLevel(logging.DEBUG)
