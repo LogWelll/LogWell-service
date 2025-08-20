@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     QUEUE_NAME: Optional[str] = None
 
     # additional fields
-    app_name: str = "Logging Microservice"
+    app_name: str = "LogWell-service"
     app_version: str = "0.1.0"
     docs_url: str = "/docs"
     redoc_url: str = "/redoc"
