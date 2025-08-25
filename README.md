@@ -166,87 +166,92 @@ logger.info(
 ```
 
 ### Log retrieval
+To retrieve logs, there are two approaches available; plain HTTP calls and through LogWell-client. Each of these are discussed separately.
+
+#### 1.Plain HTTP calls:
 Logs are retrievable through HTTP calls, through different properties, as below:
 
-#### 1. Comprehensive list
-To recieve all the logs available on LogWell, you can use the following curl command:
+-   ##### Comprehensive list
+    To recieve all the logs available on LogWell, you can use the following curl command:
 
-```bash
-curl -X 'GET' \
-  'base_url/logs/?offset=offset&limit=limit' \
-  -H 'accept: application/json' \
-  -H 'x-API-key: api_key'
+    ```bash
+    curl -X 'GET' \
+    'base_url/logs/?offset=offset&limit=limit' \
+    -H 'accept: application/json' \
+    -H 'x-API-key: api_key'
 
-```
+    ```
 
-where:
--   `base_url` is the url address where LogWell is deployed on.
--   `offset` and `limit` are query parameters of the list of logs to be returned.
--   `api_key` is the API key you want to use.
--   
+    where:
+    -   `base_url` is the url address where LogWell is deployed on.
+    -   `offset` and `limit` are query parameters of the list of logs to be returned.
+    -   `api_key` is the API key you want to use.
 
-#### 2. UID
-Once a log is stored in LogWell, a unique identifier is assigned to it; to retrieve a log given its UID, use the following curl command:
+-   ##### Get by UID
+    Once a log is stored in LogWell, a unique identifier is assigned to it; to retrieve a log given its UID, use the following curl command:
 
-```bash
-curl -X 'GET' \
-  'base_url/logs/uid' \
-  -H 'accept: application/json' \
-  -H 'x-API-key: api_key'
-```
+    ```bash
+    curl -X 'GET' \
+    'base_url/logs/uid' \
+    -H 'accept: application/json' \
+    -H 'x-API-key: api_key'
+    ```
 
-where:
--   `uid` is the UID of the desired log.
+    where:
+    -   `uid` is the UID of the desired log.
 
-#### 3. Tag
-Logs with a specific tag are retrievable by the following command:
+-   ##### Get by tag
+    Logs with a specific tag are retrievable by the following command:
 
-```bash
-curl -X 'GET' \
-  'base_url/logs/tag/the_tag?offset=offset&limit=limit' \
-  -H 'accept: application/json' \
-  -H 'x-API-key: api_key'
-```
+    ```bash
+    curl -X 'GET' \
+    'base_url/logs/tag/the_tag?offset=offset&limit=limit' \
+    -H 'accept: application/json' \
+    -H 'x-API-key: api_key'
+    ```
 
-where:
--   `the_tag` is the desired tag whose logs are retrieved.
+    where:
+    -   `the_tag` is the desired tag whose logs are retrieved.
 
 
-#### 4. Level
-Logs are supposed to possess a log level and you can retrieve the logs corresponding to a level, using the following command:
+-   ##### Get by level
+    Logs are supposed to possess a log level and you can retrieve the logs corresponding to a level, using the following command:
 
-```bash
-curl -X 'GET' \
-  'base_url/logs/level/the_level?offset=offset&limit=limit' \
-  -H 'accept: application/json' \
-  -H 'x-API-key: api_key'
-```
+    ```bash
+    curl -X 'GET' \
+    'base_url/logs/level/the_level?offset=offset&limit=limit' \
+    -H 'accept: application/json' \
+    -H 'x-API-key: api_key'
+    ```
 
-where:
--   `the_level` is the desired level. Acceptable vlaues are: INFO, TRACE, DEBUG, WARNING, ERROR, CRITICAL, FATAL, NOTSET.
+    where:
+    -   `the_level` is the desired level. Acceptable vlaues are: INFO, TRACE, DEBUG, WARNING, ERROR, CRITICAL, FATAL, NOTSET.
 
-#### 5. Exact group path
-LogWell supports nested-logging; to retrieve the logs with the exact group path (a comma separated string consisting of different parts of the path e.g. "node-inner node1-inner node2-leaf"), use the following command:
+-   ##### Get by group path (exact)
+    LogWell supports nested-logging; to retrieve the logs with the exact group path (a comma separated string consisting of different parts of the path e.g. "node-inner node1-inner node2-leaf"), use the following command:
 
-```bash
-curl -X 'GET' \
-  'base_url/logs/group/exact_group_path/?offset=offset&limit=limit' \
-  -H 'accept: application/json' \
-  -H 'x-API-key: api_key'
-```
+    ```bash
+    curl -X 'GET' \
+    'base_url/logs/group/exact_group_path/?offset=offset&limit=limit' \
+    -H 'accept: application/json' \
+    -H 'x-API-key: api_key'
+    ```
 
-where:
--   `exact_group_path` is the desired group path.
+    where:
+    -   `exact_group_path` is the desired group path.
 
-#### 6. All children of a group path
-If you are interested in retrieving all the logs under a group path (unlike the previous approach that only provides the logs with the exact group path), use the following command:
+-   ##### Get by group path (all children)
+    If you are interested in retrieving all the logs under a group path (unlike the previous approach that only provides the logs with the exact group path), use the following command:
 
-```bash
-curl -X 'GET' \
-  'base_url/logs/group/group_path/children/?offset=offset&limit=limit' \
-  -H 'accept: application/json' \
-  -H 'x-API-key: api_key'
-```
+    ```bash
+    curl -X 'GET' \
+    'base_url/logs/group/group_path/children/?offset=offset&limit=limit' \
+    -H 'accept: application/json' \
+    -H 'x-API-key: api_key'
+    ```
 
-where:
--   `group_path` is the path to retrieve all its cheldren.
+    where:
+    -   `group_path` is the path to retrieve all its cheldren.
+
+#### 2. Through LogWell-client
+Using the LogWell-client, logs are retrieveable using both `SyncLogClient` and ‍`AsyncLogClient`; for detailed explanations and examples, checkout [here](https://github.com/LogWelll/LogWell-client?tab=readme-ov-file#log-retrieval).
