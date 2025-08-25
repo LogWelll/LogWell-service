@@ -36,6 +36,9 @@ created_at: datetime = Field(default_factory=datetime.now)      # an automatical
 ## Infrastructure
 LogWell-service, at least, requires a database (natievely supportingh MongoDB) to store and retrieve logs and a FastAPI application to create and read logs; this basic configuration provides fire-and-forget log creation (upon calling the log creation endpoints, the HTTP communication channel is closed as soon as possible and the actual DB-related insertion operation is done in a separate thread to avoid blocking the application) functionality through FastAPI builtin BackgroundTasks. For high-throghput applications that FastAPI BackgroundTasks may perform poorly, by adding a celery worker and a message queue (natievely supporting RabbitMQ), a more robust option would be available to create logs in a non-blocking manner.
 
+## Authentication and authorization
+LogWell natievly offers a super-simplified authorization system, through API keys. This system is kind of naive and straightforward when compared with current best practices; this is to keep the LogWell super-easy to integrate to the core services. We strongly encourage the users to replace the in-house authentication and authorization mechanism of LogWell with their main approach to not only make their LogWell instance more secured but also achieve higher levels of integrity across the code base.s
+
 
 ## Environemnt variables
 Below, is an example of the `.env` file you are supposed to provide for this application to work:
@@ -65,7 +68,7 @@ Attention: Do not forget modifying the development stage suitable placeholders, 
 
 ### Log creation
 
-Logs can be created in different styles:
+Logs can be created in different ways:
 
 #### 1. Direct HTTP calls
 
@@ -161,3 +164,89 @@ logger.info(
     },
 )
 ```
+
+### Log retrieval
+Logs are retrievable through HTTP calls, through different properties, as below:
+
+#### 1. Comprehensive list
+To recieve all the logs available on LogWell, you can use the following curl command:
+
+```bash
+curl -X 'GET' \
+  'base_url/logs/?offset=offset&limit=limit' \
+  -H 'accept: application/json' \
+  -H 'x-API-key: api_key'
+
+```
+
+where:
+-   `base_url` is the url address where LogWell is deployed on.
+-   `offset` and `limit` are query parameters of the list of logs to be returned.
+-   `api_key` is the API key you want to use.
+-   
+
+#### 2. UID
+Once a log is stored in LogWell, a unique identifier is assigned to it; to retrieve a log given its UID, use the following curl command:
+
+```bash
+curl -X 'GET' \
+  'base_url/logs/uid' \
+  -H 'accept: application/json' \
+  -H 'x-API-key: api_key'
+```
+
+where:
+-   `uid` is the UID of the desired log.
+
+#### 3. Tag
+Logs with a specific tag are retrievable by the following command:
+
+```bash
+curl -X 'GET' \
+  'base_url/logs/tag/the_tag?offset=offset&limit=limit' \
+  -H 'accept: application/json' \
+  -H 'x-API-key: api_key'
+```
+
+where:
+-   `the_tag` is the desired tag whose logs are retrieved.
+
+
+#### 4. Level
+Logs are supposed to possess a log level and you can retrieve the logs corresponding to a level, using the following command:
+
+```bash
+curl -X 'GET' \
+  'base_url/logs/level/the_level?offset=offset&limit=limit' \
+  -H 'accept: application/json' \
+  -H 'x-API-key: api_key'
+```
+
+where:
+-   `the_level` is the desired level. Acceptable vlaues are: INFO, TRACE, DEBUG, WARNING, ERROR, CRITICAL, FATAL, NOTSET.
+
+#### 5. Exact group path
+LogWell supports nested-logging; to retrieve the logs with the exact group path (a comma separated string consisting of different parts of the path e.g. "node-inner node1-inner node2-leaf"), use the following command:
+
+```bash
+curl -X 'GET' \
+  'base_url/logs/group/exact_group_path/?offset=offset&limit=limit' \
+  -H 'accept: application/json' \
+  -H 'x-API-key: api_key'
+```
+
+where:
+-   `exact_group_path` is the desired group path.
+
+#### 6. All children of a group path
+If you are interested in retrieving all the logs under a group path (unlike the previous approach that only provides the logs with the exact group path), use the following command:
+
+```bash
+curl -X 'GET' \
+  'base_url/logs/group/group_path/children/?offset=offset&limit=limit' \
+  -H 'accept: application/json' \
+  -H 'x-API-key: api_key'
+```
+
+where:
+-   `group_path` is the path to retrieve all its cheldren.
